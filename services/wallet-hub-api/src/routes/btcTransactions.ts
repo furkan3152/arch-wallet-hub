@@ -35,10 +35,16 @@ import { getTurnkeyResourceByIdForApp } from "../db/queries.js";
 import { indexerForRequest } from "../indexer/forRequest.js";
 import type { IndexerClient } from "../indexer/client.js";
 import * as bitcoin from "bitcoinjs-lib";
+import * as ecc from "@bitcoinerlab/secp256k1";
 import { partitionByProtection, type BtcUtxo } from "../bitcoin/protection.js";
 import { dustThresholdForAddress } from "../bitcoin/dust.js";
 
 type Utxo = BtcUtxo;
+
+// bitcoinjs-lib needs an ECC backend before it can encode a Taproot
+// (P2TR) output script, and every Hub-created wallet defaults to P2TR.
+// Same pure-JS backend the chrome wallet uses.
+bitcoin.initEccLib(ecc);
 
 /**
  * Coin selection for a plain BTC send. Filters out protected UTXOs
